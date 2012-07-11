@@ -3,8 +3,6 @@ var util = require('util');
 var q = require('q');
 
 var controller = {
-	name: 'hungrygowhere',
-	domain: 'www.hungrygowhere.com',
 	interval: 60 * 60 * 24 * 7 * 1000,
 
 	poll: function(worker, cb) {
