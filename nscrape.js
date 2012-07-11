@@ -59,9 +59,8 @@ function bootstrapController(controller) {
     if (!res || !res.length) {
       runController(controller);
     } else {
-      var timeleft = res[0].timestamp + controller.interval - common.time();
+      var timeleft = 1*res[0].timestamp + 1*controller.interval - 1*common.time();
       if (timeleft < 0) timeleft = 0;
-
       setTimeout(function() {
         runController(controller);
       }, timeleft);

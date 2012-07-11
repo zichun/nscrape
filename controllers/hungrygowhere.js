@@ -1,4 +1,4 @@
-var page = 'http://www.hungrygowhere.com/search_results.php?f_foodplace=%s&f_recommend=na&f_cuisine=na&f_price=na&city=147&f_zone=0&alpha_check=1&location-alpha-select=07&location-postal-select=%s&f_zip=07&searchcat=Category&f_name=';
+var page = 'http://www.hungrygowhere.com/search_results.php?f_foodplace=%s&f_recommend=na&f_cuisine=na&f_price=na&city=147&f_zone=0&alpha_check=1&location-alpha-select=%s&location-postal-select=%s&f_zip=%s&searchcat=Category&f_name=';
 var util = require('util');
 var q = require('q');
 
@@ -17,7 +17,7 @@ var controller = {
 			for (var location_postal_select in location_postal_selects) {
 				if (!location_postal_selects.hasOwnProperty(location_postal_select)) continue;
 
-				var url = util.format(page, f_foodplace, location_postal_select);
+				var url = util.format(page, f_foodplace, location_postal_select, location_postal_select, location_postal_select);
 
 				tp.push(url);
 			}
