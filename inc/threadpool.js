@@ -11,7 +11,10 @@ function ThreadPool(worker, threads, interval) {
 		var work;
 
 		function createCallback(id, method, controller) {
+			var done = false;
 			return function(err, res) {
+				if (done) return;
+				done = true;
 				self.used--;
 				if (err) {
 					global.log.error('Worker thread ' + controller + ':' + method + ' died with error ' + err.toString());
@@ -54,7 +57,10 @@ function ThreadPool(worker, threads, interval) {
 			nextTick();
 		}
 
+		var called = false;
 		function nextTick() {
+			if (called) return; // defensive: ensure that tick is called only once per call to populatePool
+			called = true;
 			setTimeout(function() {
 				self.populatePool();
 			}, interval);						

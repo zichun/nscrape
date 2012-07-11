@@ -22,9 +22,24 @@ Worker.prototype.newWork = function(controller, method, arg, cb) {
 		});
 };
 
+// get a current outstanding work
+//	immediately marks work as being worked on. atomic operation
 Worker.prototype.getWork = function(cb) {
 	var mysql = this.mysql;
 
+	mysql.query('CALL `GetWork()`;', function(err, res) {
+		if (err) {
+			global.error('mysql',err);
+			cb(err, null);
+		} else {
+			if (res && res.length && res[0] && res[0].length) {
+				cb(err, res[0][0]);
+			} else {
+				cb(err, false);
+			}
+		}
+	});
+	/*
 	mysql.query('SELECT * FROM works WHERE completed=0 ORDER BY created ASC LIMIT 0,1', function(err, res) {
 		if (err) {
 			global.error('mysql', err);
@@ -42,7 +57,7 @@ Worker.prototype.getWork = function(cb) {
 				cb(err, false);
 			}
 		}
-	});
+	});*/
 };
 
 Worker.prototype.completeWork = function(id, cb) {
