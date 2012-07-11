@@ -20,6 +20,9 @@
     "node": ">=0.4.0"
   },
   "dependencies": {
-    "node.io": ">= 0.4.12"
+    "mysql": ">= 2.0.0-alpha3",
+    "phantom": ">=0.3.5",
+    "q": ">=0.8.5",
+    "contextify": ">=0.1.3"
   }
 }
