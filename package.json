@@ -1,0 +1,25 @@
+{
+  "name": "nscrape",
+  "description": "A web scrapper based on node.io",
+  "version": "0.0.1",
+  "homepage": "http://github.com/zichun/nscrape",
+  "author": {
+    "name": "Koh Zi Chun",
+    "email": "zichun@gmail.com"
+  },
+  "main": "./nscrape.js",
+  "bugs": {
+    "mail": "zichun@gmail.com",
+    "url": "http://github.com/zichun/nscrape"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/zichun/nscrape.git"
+  },
+  "engines": {
+    "node": ">=0.4.0"
+  },
+  "dependencies": {
+    "node.io": ">= 0.4.12"
+  }
+}
