@@ -53,7 +53,7 @@ var controller = {
 module.exports = controller;
 
 var f_foodplaces = {
-	/*"1":"Bakery/Dessert",
+	"1":"Bakery/Dessert",
 	"26":"Beer",
 	"25":"Bistro/Brasserie",
 	"2":"Cafe",
@@ -67,7 +67,7 @@ var f_foodplaces = {
 	"5":"Karaoke",
 	"12":"Kiosk/Stall",
 	"9":"Lounge",
-	"6":"Pub/Bar",*/
+	"6":"Pub/Bar",
 	"11":"Restaurant",
 	"7":"Tea",
 	"8":"Wine/Spirits"
@@ -77,7 +77,7 @@ var location_postal_selects = {
 	"01": "Marina South",
 	"02": "Marina East",
 	"03": "Esplanade/Suntec",
-	"04": "Raffles Place"/*,
+	"04": "Raffles Place",
 	"05": "Chinatown",
 	"06": "Shenton Way",
 	"07": "Anson Road",
@@ -154,5 +154,5 @@ var location_postal_selects = {
 	"75": "Sembawang",
 	"76": "Yishun/Khatib",
 	"77": "Nee Soon",
-	"78": "Spring Leaf"*/
+	"78": "Spring Leaf"
 };
