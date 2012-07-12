@@ -33,7 +33,7 @@ Threads are managed by the ThreadPool object that will periodically poll the Wor
 
 Controllers will bootstrap the entire crawling process. It will be called periodically based on a given period. New controllers can be added by creating a new file in the ```./controllers/``` folder.
 
-Each controller is an object that has the keys ```interval``` (integer representing the number of milliseconds that it will be called, as well as ```poll```, the function that will be called. The ```poll``` function will be given the Worker object so that the controller and add new work to the pool.
+Each controller is an object that has the keys ```interval``` (integer representing the number of milliseconds that it will be called, as well as ```poll```, the function that will be called. The ```poll``` function will be given the Worker object so that the controller and add new work to the pool. The controller also needs to define the key ```name``` that is used as a unique identifier for the controller.
 
 ## Todo
 

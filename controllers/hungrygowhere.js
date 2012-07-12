@@ -4,7 +4,7 @@ var q = require('q');
 
 var controller = {
 	interval: 60 * 60 * 24 * 7 * 1000,
-
+	name: 'hungrygowhere',
 	poll: function(worker, cb) {
 		var tp = [];
 
