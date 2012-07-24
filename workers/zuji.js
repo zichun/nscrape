@@ -52,7 +52,7 @@ var workers = {
 					var name = $('.titleCard').text();
 					var country = $('.destination').text();
 					var thumbnail = $('.photo-tab img').attr('src');
-					var star = parseInt($('.rating a').attr('title').split(' ')[0], 10);
+					var star = $('.rating a').attr('title') ? parseInt($('.rating a').attr('title').split(' ')[0], 10) : 0;
 					var rating = null;
 					if ($('.rate.os45 img').size()) {
 						rating = parseFloat($('.rate.os45 img').attr('alt').split(' ')[0]);
@@ -72,7 +72,7 @@ var workers = {
 						var review = $r.find('.review-description').text();
 						var date = $r.find('.date').text();
 						var location = $r.find('.location').text();
-						var rrating = parseFloat($r.find('.rate img').attr('alt').split('/')[0]);
+						var rrating = $r.find('.rate img').attr('alt') ? parseFloat($r.find('.rate img').attr('alt').split('/')[0]) : 0;
 
 						reviews.push({
 							title: title,
@@ -99,7 +99,9 @@ var workers = {
 					};
 				}, function(res) {
 					ph.exit();
-
+					if (!res || !res.hotel || !res.hotel.name) {
+						cb('Pull error', false);
+					}
 					if (res.hotel.thumbnail) {
 						res.hotel.thumbnail = _url.resolve(url, res.hotel.thumbnail);
 					}
