@@ -46,7 +46,7 @@ for (var name in controllers) {
   if (!controllers.hasOwnProperty(name)) continue;
   var controller = controllers[name];
   global.log.info('Initializing ' + controller.name + ' with period of ' + controller.interval + 'ms');
-
+  if (controller.name === 'hungrygowhere') continue;
   bootstrapController(controller);
 }
 
@@ -105,5 +105,4 @@ function readControllers() {
   }
   return controllers;
 }
-
 

@@ -11,9 +11,9 @@ module.exports = {
 						if (status !== 'success') {
 							cb(new Error('Error opening ' + url + ': ' + status), false);
 						} else {
-							page.injectJs('./jquery.js', function() {
+							//page.injectJs('./jquery.js', function() {
 								cb(null, ph, page);
-							});
+							//});
 						}
 					});
 				});
@@ -26,5 +26,9 @@ module.exports = {
 
 	time: function() {
 		return (new Date()).getTime();
+	},
+
+	htmlString: function(str) {
+		return str.replace(/\s+/g, ' ');
 	}
 };

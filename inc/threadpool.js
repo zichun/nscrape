@@ -32,7 +32,7 @@ function ThreadPool(worker, threads, interval) {
 				if (work) {
 					var controller = require('../workers/' + work.controller + '.js');
 					if (typeof controller[work.method] === 'undefined') {
-						global.log.warning('Method ' + work.method + ' not implemented for controller ' + work.controller);
+						global.log.warn('Method ' + work.method + ' not implemented for controller ' + work.controller);
 					} else {
 						
 						var args = JSON.parse(work['arguments']);
