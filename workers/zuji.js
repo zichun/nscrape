@@ -151,14 +151,14 @@ var workers = {
 			if (err) {
 				cb(err, false); return;
 			}
-			global.debug('getHotelDescription getUrl done');
+			global.log.debug('getHotelDescription getUrl done');
 			page.evaluate(function() {
 				return $(".supporting-info").html();
 			}, function(res) {
 				ph.exit();
-				global.debug('getHotelDescription evaluate done');
+				global.log.debug('getHotelDescription evaluate done');
 				zuji.setDescription(hotel_id, res, worker.mysql, function(err, res) {
-					global.debug('getHotelDescription sql done');
+					global.log.debug('getHotelDescription sql done');
 					if (err) cb(err, false);
 					else cb(null, true);
 				});
