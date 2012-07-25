@@ -1,23 +1,29 @@
-var phantom = require('phantom');
+var Phantom = new require('phantom-sync').Phantom;
+var Sync =  new require('phantom-sync').Sync;
 
 module.exports = {
 	openUrlWithJquery: function(url, cb) {
-		global.log.debug('Opening url ' + url);
+
+		var phantom = new Phantom({mode: 'mixed'});
 
 		try {
-			phantom.create('--load-images=no','--local-to-remote-url-access=no', '--disk-cache=yes',function(ph) {
-				ph.createPage(function(page) {
-					return page.open(url, function (status) {
-						if (status !== 'success') {
-							cb(new Error('Error opening ' + url + ': ' + status), false);
-						} else {
-							//page.injectJs('./jquery.js', function() {
-								cb(null, ph, page);
-							//});
-						}
-					});
+			Sync(function() {
+				var ph = phantom.create('--load-images=no','--local-to-remote-url-access=no', '--disk-cache=yes');
+				var page = ph.createPage();
+				
+				global.log.debug('Opening url ' + url);
+				page.open(url, function (status) {
+					global.log.debug('Retrieved url ' + url);
+					if (status !== 'success') {
+						cb(new Error('Error opening ' + url + ': ' + status), false);
+					} else {
+						page.injectJs('./inc/jquery.js', function() {
+							cb(null, ph, page, Sync);
+						});
+					}
 				});
 			});
+
 		} catch (e) {
 			cb(e, null);
 		}

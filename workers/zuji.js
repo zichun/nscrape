@@ -147,22 +147,26 @@ var workers = {
 	},
 
 	getHotelDescription: function(hotel_id, url, worker, cb) {
-		common.openUrlWithJquery(url, function(err, ph, page) {
+		common.openUrlWithJquery(url, function(err, ph, page, Sync) {
 			if (err) {
 				cb(err, false); return;
 			}
-			global.log.debug('getHotelDescription getUrl done');
-			page.evaluate(function() {
-				return $(".supporting-info").html();
-			}, function(res) {
+
+			Sync(function() {
+				var res = page.evaluate(function() {
+					return $(".supporting-info").html();
+				});
 				ph.exit();
-				global.log.debug('getHotelDescription evaluate done');
+				parseRes(res);
+			});
+
+			function parseRes(res) {
 				zuji.setDescription(hotel_id, res, worker.mysql, function(err, res) {
-					global.log.debug('getHotelDescription sql done');
 					if (err) cb(err, false);
 					else cb(null, true);
 				});
-			});
+			}
+
 		});
 	}
 };
