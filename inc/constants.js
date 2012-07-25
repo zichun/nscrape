@@ -12,6 +12,7 @@ module.exports = {
 
 	threadpool: {
 		maxThreads: 5,
-		interval: 1000
+		interval: 1000,
+		timeout: 120000 // 2 min
 	}
 };

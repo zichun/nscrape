@@ -5,17 +5,36 @@ function ThreadPool(worker, threads, interval) {
 	this.maxthreads = threads;
 	this.used = 0;
 	this.started = false;
-
+	this.timeout = global.CONSTANTS.threadpool.timeout;
 
 	this.populatePool = function() {
 		var work;
 
+		function startWork(controller, work) {
+			var args = JSON.parse(work['arguments']);
+			args.push(worker);
+			args.push(createCallback(work.id, work.method, work.controller));
+
+			self.used++;
+			global.log.info('Starting Worker thread ' + work.controller + ':' + work.method + ' ['+self.used+'/'+threads+']');
+			controller[work.method].apply( controller, args );
+		}
+
 		function createCallback(id, method, controller) {
 			var done = false;
+			var timeoutHandle = setTimeout(function() {
+				global.log.error('Worker thread ' + controller + ':' + method + ' timed-out!');
+				done = true;
+				self.used--;
+			}, self.timeout);
+
 			return function(err, res) {
 				if (done) return;
 				done = true;
 				self.used--;
+
+				clearTimeout(timeoutHandle);
+
 				if (err) {
 					global.log.error('Worker thread ' + controller + ':' + method + ' died with error ' + err.toString());
 				} else {
@@ -34,14 +53,7 @@ function ThreadPool(worker, threads, interval) {
 					if (typeof controller[work.method] === 'undefined') {
 						global.log.warn('Method ' + work.method + ' not implemented for controller ' + work.controller);
 					} else {
-						
-						var args = JSON.parse(work['arguments']);
-						args.push(worker);
-						args.push(createCallback(work.id, work.method, work.controller));
-
-						self.used++;
-						global.log.info('Starting Worker thread ' + work.controller + ':' + work.method + ' ['+self.used+'/'+threads+']');
-						controller[work.method].apply( controller, args );
+						startWork(controller, work);
 					}
 
 					if (self.used < threads) {
@@ -63,7 +75,7 @@ function ThreadPool(worker, threads, interval) {
 			called = true;
 			setTimeout(function() {
 				self.populatePool();
-			}, interval);						
+			}, interval);
 		}
 
 	};
