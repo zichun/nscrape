@@ -7,7 +7,7 @@ var Logger = require('./inc/logger.js');
 var mysql = require('./inc/mysql.js').init();
 var Worker = require('./inc/worker.js').Worker;
 var ThreadPool = require('./inc/threadpool.js');
-
+var proxy = require('./inc/proxy.js');
 
 
 //
@@ -35,6 +35,10 @@ var threadPool = new ThreadPool(worker, global.CONSTANTS.threadpool.maxThreads, 
 threadPool.start();
 
 
+//
+// Iniitalize proxy checking
+//
+proxy.checkProxies(mysql);
 
 
 
@@ -70,6 +74,7 @@ function bootstrapController(controller) {
 }
 // Run a controller with a given interval
 function runController(controller) {
+  return;
     global.log.info('Running controller ' + controller.name);
     mysql.query('INSERT INTO controllers(controller, timestamp) VALUES(?,?)', [controller.name, common.time()], function(err, res) {
       if (err) {
@@ -105,4 +110,3 @@ function readControllers() {
   }
   return controllers;
 }
-

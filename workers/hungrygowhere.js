@@ -1,6 +1,6 @@
 var _url = require('url');
 var q = require('q');
-
+var compress = require('../inc/compress.js');
 var common = require('../common.js');
 var hgw_helper = require('./hungrygowhere/helper.js');
 
@@ -9,7 +9,7 @@ var workers = {
 	// Given a search result page
 	//	1. retrieves all restaurants listed
 	//	2. check if there is a next page for search listing
-	parseSearch: function(url, worker, cb) {
+	parseSearch: function(url, proxies, worker, cb) {
 		common.openUrlWithJquery(url, function(err, ph, page) {
 			if (err) {
 				cb(err, false); return;
@@ -56,7 +56,7 @@ var workers = {
 	//
 	//  a. if restaurant exists in database, then update
 	//  b. otherwise, insert a new row
-	parseRestaurant: function(url, worker, cb) {
+	parseRestaurant: function(url, proxies, worker, cb) {
 		common.openUrlWithJquery(url, function(err, ph, page) {
 			if (err) {
 				cb(err, false); return;
@@ -175,138 +175,143 @@ var workers = {
 	},
 
 
-	parseReviews: function(restaurant_url, review_url, firstpage, worker, cb) {
-		common.openUrlWithJquery(review_url, function(err, ph, page) {
+	parseReviews: function(restaurant_url, review_url, firstpage, proxies, worker, cb) {
+		common.openUrlWithJquery(review_url, function(err, ph, page, Sync) {
 			if (err) {
 				cb(err, false); return;
 			}
-			page.evaluate(
-				function() {
-					var $reviews = $('.review-item');
-					var tr = [];
+			Sync(function() {
+				var res = page.evaluate(
+					function() {
+						var $reviews = $('.review-item');
+						var tr = [];
 
-					for (var i=0;i<$reviews.size();++i) {
-						$review = $reviews.eq(i);
+						for (var i=0;i<$reviews.size();++i) {
+							$review = $reviews.eq(i);
+							
+							var poster = $review.find('.reviewer-display-name').text().trim();
+							var recommend = $review.find('.would-you-return-0,.would-you-return-1,.would-you-return-2').text().trim();
+							var price_pax = $review.find('.avg-spending').text().trim();
+
+							var $rating = $review.find('.review-ratings span');
+							var rating_food = $rating.eq(0).text().split(': ')[1].trim();
+							var rating_ambience = $rating.eq(0).text().split(': ')[1].trim();
+							var rating_value = $rating.eq(0).text().split(': ')[1].trim();
+							var rating_service = $rating.eq(0).text().split(': ')[1].trim();
+							var rating_overall = $review.find('.overall-score.value').text();
+
+							if (rating_food === 'na' || !rating_food) rating_food = null;
+							if (rating_ambience === 'na' || !rating_ambience) rating_ambience = null;
+							if (rating_value === 'na' || !rating_value) rating_value = null;
+							if (rating_service === 'na' || !rating_service) rating_service = null;
+							if (rating_overall === 'na' || !rating_overall) rating_overall = null;
+
+							var must_tries = $review.find('.review-must-tries').text();
+							var title = $review.find('.review-head').text().trim();
+							var review_date = $review.find('.review-date .value-title').attr('title');
+							var review = $review.find('.review-text:first').text().trim();
+
+							tr.push( {
+								poster: poster,
+								recommend: recommend,
+								price_pax: price_pax,
+								rating_overall: rating_overall,
+								rating_food: rating_food,
+								rating_ambience: rating_ambience,
+								rating_value: rating_value,
+								rating_service: rating_service,
+								title: title,
+								review_date: review_date,
+								review: review,
+								must_tries: must_tries
+							});
+						}
+
+						var $score = $('#scores');
+						var orating_overall = $score.find('.body12').eq(1).text();
+						var orating_food = $score.find('.body12').eq(3).text();
+						var orating_ambience = $score.find('.body12').eq(5).text();
+						var orating_value = $score.find('.body12').eq(7).text();
+						var orating_service = $score.find('.body12').eq(9).text();
 						
-						var poster = $review.find('.reviewer-display-name').text().trim();
-						var recommend = $review.find('.would-you-return-0,.would-you-return-1,.would-you-return-2').text().trim();
-						var price_pax = $review.find('.avg-spending').text().trim();
 
-						var $rating = $review.find('.review-ratings span');
-						var rating_food = $rating.eq(0).text().split(': ')[1].trim();
-						var rating_ambience = $rating.eq(0).text().split(': ')[1].trim();
-						var rating_value = $rating.eq(0).text().split(': ')[1].trim();
-						var rating_service = $rating.eq(0).text().split(': ')[1].trim();
-						var rating_overall = $review.find('.overall-score.value').text();
+						var $nextpage = $('img[src="/img/graphics/ui/page_no_next.gif"]');
+						var nextpage = false;
+						if ($nextpage.size()) {
+							nextpage = $nextpage.parent().attr('href');
+						}
 
-						if (rating_food === 'na' || !rating_food) rating_food = null;
-						if (rating_ambience === 'na' || !rating_ambience) rating_ambience = null;
-						if (rating_value === 'na' || !rating_value) rating_value = null;
-						if (rating_service === 'na' || !rating_service) rating_service = null;
-						if (rating_overall === 'na' || !rating_overall) rating_overall = null;
-
-						var must_tries = $review.find('.review-must-tries').text();
-						var title = $review.find('.review-head').text().trim();
-						var review_date = $review.find('.review-date .value-title').attr('title');
-						var review = $review.find('.review-text:first').text().trim();
-
-						tr.push( {
-							poster: poster,
-							recommend: recommend,
-							price_pax: price_pax,
-							rating_overall: rating_overall,
-							rating_food: rating_food,
-							rating_ambience: rating_ambience,
-							rating_value: rating_value,
-							rating_service: rating_service,
-							title: title,
-							review_date: review_date,
-							review: review,
-							must_tries: must_tries
-						});
+						var toreturn = {
+							reviews: tr,
+							rating_overall: orating_overall,
+							rating_food: orating_food,
+							rating_ambience: orating_ambience,
+							rating_value: orating_value,
+							rating_service: orating_service,
+							nextpage: nextpage
+						};
+						return toreturn;
 					}
+				);
+				ph.exit();
+				parseRes(res);
+			});
 
-					var $score = $('#scores');
-					var orating_overall = $score.find('.body12').eq(1).text();
-					var orating_food = $score.find('.body12').eq(3).text();
-					var orating_ambience = $score.find('.body12').eq(5).text();
-					var orating_value = $score.find('.body12').eq(7).text();
-					var orating_service = $score.find('.body12').eq(9).text();
-					
+			function parseRes(res) {
+				if (!res) {
+					cb(new Error('Phantomjs Error'), false);
+					return;
+				}
 
-					var $nextpage = $('img[src="/img/graphics/ui/page_no_next.gif"]');
-					var nextpage = false;
-					if ($nextpage.size()) {
-						nextpage = $nextpage.parent().attr('href');
-					}
-
-					return {
-						reviews: tr,
-						rating_overall: orating_overall,
-						rating_food: orating_food,
-						rating_ambience: orating_ambience,
-						rating_value: orating_value,
-						rating_service: orating_service,
-						nextpage: nextpage
-					};
-				},
-				function(res) {
-					ph.exit();
-					if (!res) {
-						cb(new Error('Phantomjs Error'), false);
+				// get restaurant_id from the given url
+				hgw_helper.getRestaurantByUrl(restaurant_url, worker.mysql, function(err, doc) {
+					if (err) {
+						cb(err, false);
+						return;
+					} else if(!doc || !doc.length) {
+						if (err) {
+							global.log.error('No such restaurant exists for url ' + restaurant_url);
+						}
+						cb('No such restaurant exists ' + restaurant_url, false);
 						return;
 					}
 
-					// get restaurant_id from the given url
-					hgw_helper.getRestaurantByUrl(restaurant_url, worker.mysql, function(err, doc) {
-						if (err) {
-							cb(err, false);
-							return;
-						} else if(!doc || !doc.length) {
-							if (err) {
-								global.log.error('No such restaurant exists for url ' + restaurant_url);
+					var rid = doc[0].id;
+					var promises = [];
+					for (var i=0;i<res.reviews.length;++i) {
+						promises.push(
+							q.ncall(hgw_helper.insertReview, hgw_helper, rid, res.reviews[i], worker.mysql));
+					}
+
+					if (firstpage) {
+						// update ratings
+						promises.push(
+							q.ncall(hgw_helper.updateRating, hgw_helper, rid, res['rating_overall'], res['rating_food'], res['rating_ambience'], res['rating_value'], res['rating_service'], worker.mysql));
+					}
+
+					q
+					.allResolved(promises)
+					.then(function(promises) {
+						var err = [];
+						var done = [];
+						promises.forEach(function(promise) {
+							if (promise.isFulfilled()) {
+								done.push(promise.valueOf());
+							} else {
+								err.push(promise.valueOf().exception);
 							}
-							cb('No such restaurant exists ' + restaurant_url, false);
-							return;
-						}
-
-						var rid = doc[0].id;
-						var promises = [];
-						for (var i=0;i<res.reviews.length;++i) {
-							promises.push(
-								q.ncall(hgw_helper.insertReview, hgw_helper, rid, res.reviews[i], worker.mysql));
-						}
-
-						if (firstpage) {
-							// update ratings
-							promises.push(
-								q.ncall(hgw_helper.updateRating, hgw_helper, rid, res['rating_overall'], res['rating_food'], res['rating_ambience'], res['rating_value'], res['rating_service'], worker.mysql));
-						}
-
-						q
-						.allResolved(promises)
-						.then(function(promises) {
-							var err = [];
-							var done = [];
-							promises.forEach(function(promise) {
-								if (promise.isFulfilled()) {
-									done.push(promise.valueOf());
-								} else {
-									err.push(promise.valueOf().exception);
-								}
-							});
-
-							cb(err.length ? err : null, done);
 						});
 
+						cb(err.length ? err : null, done);
 					});
 
-					if (res['nextpage']) {
-						// insert next page
-						worker.newWork('hungrygowhere', 'parseReviews', [restaurant_url, _url.resolve(review_url, res['nextpage']), false]);
-					}
+				});
+
+				if (res['nextpage']) {
+					// insert next page
+					worker.newWork('hungrygowhere', 'parseReviews', [restaurant_url, _url.resolve(review_url, res['nextpage']), false]);
 				}
-			);
+			}
 		});
 	}
 };

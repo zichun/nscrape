@@ -14,5 +14,11 @@ module.exports = {
 		maxThreads: 5,
 		interval: 1000,
 		timeout: 120000 // 2 min
+	},
+
+	proxy: {
+		testURL: 'http://infoman.ddns.comp.nus.edu.sg/proxy.html',
+		testResult: 'hello',
+		testInterval: 1000 * 60 * 5 // 5 min
 	}
 };

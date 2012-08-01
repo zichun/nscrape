@@ -12,6 +12,7 @@ function ThreadPool(worker, threads, interval) {
 
 		function startWork(controller, work) {
 			var args = JSON.parse(work['arguments']);
+			args.push(work['proxy']);
 			args.push(worker);
 			args.push(createCallback(work.id, work.method, work.controller));
 

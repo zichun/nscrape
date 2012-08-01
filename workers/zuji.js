@@ -4,8 +4,8 @@ var common = require('../common.js');
 var zuji = require('./zuji/zuji.js');
 
 var workers = {
-	parseSearch: function(url, worker, cb) {
-		common.openUrlWithJquery(url, function(err, ph, page) {
+	parseSearch: function(url, proxies, worker, cb) {
+		common.openUrlWithJquery(url, proxies, function(err, ph, page) {
 			if (err) {
 				cb(err, false); return;
 			}
@@ -39,8 +39,8 @@ var workers = {
 		});
 	},
 
-	parseHotel: function(url, worker, cb) {
-		common.openUrlWithJquery(url, function(err, ph, page) {
+	parseHotel: function(url, proxies, worker, cb) {
+		common.openUrlWithJquery(url, proxies, function(err, ph, page) {
 			if (err) {
 				cb(err, false); return;
 			}
@@ -146,8 +146,8 @@ var workers = {
 		});
 	},
 
-	getHotelDescription: function(hotel_id, url, worker, cb) {
-		common.openUrlWithJquery(url, function(err, ph, page, Sync) {
+	getHotelDescription: function(hotel_id, url, proxies, worker, cb) {
+		common.openUrlWithJquery(url, proxies, function(err, ph, page, Sync) {
 			if (err) {
 				cb(err, false); return;
 			}
