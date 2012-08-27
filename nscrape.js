@@ -50,7 +50,6 @@ for (var name in controllers) {
   if (!controllers.hasOwnProperty(name)) continue;
   var controller = controllers[name];
   global.log.info('Initializing ' + controller.name + ' with period of ' + controller.interval + 'ms');
-  if (controller.name === 'hungrygowhere') continue;
   bootstrapController(controller);
 }
 
@@ -74,7 +73,6 @@ function bootstrapController(controller) {
 }
 // Run a controller with a given interval
 function runController(controller) {
-  return;
     global.log.info('Running controller ' + controller.name);
     mysql.query('INSERT INTO controllers(controller, timestamp) VALUES(?,?)', [controller.name, common.time()], function(err, res) {
       if (err) {

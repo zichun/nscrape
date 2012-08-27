@@ -1,9 +1,26 @@
 var Phantom = new require('phantom-sync').Phantom;
 var Sync =  new require('phantom-sync').Sync;
 var proxy = require('./inc/proxy.js');
+var cheerio = require('cheerio');
+var request = require('request');
 
 module.exports = {
 	openUrlWithJquery: function(url, proxies, cb) {
+		global.log.debug('Opening url ' + url);
+		request( { uri: url }, function(err, res, body) {
+			if (err && res.statusCode !== 200) {
+				global.log.error('Error opening url ' + url);
+				cb(err, null);
+				return;
+			}
+
+			global.log.debug('Retrieved url ' + url + ' ['+body.length+' bytes]');
+
+			var $ = cheerio.load(body);
+			cb(null, body, $);
+		});
+	},
+	openUrlWithJqueryOld: function(url, proxies, cb) {
 
 		var phantom = new Phantom({mode: 'mixed'});
 
