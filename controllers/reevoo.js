@@ -8,7 +8,7 @@ var controller = {
 	name: 'reevoo',
 	poll: function(worker, cb) {
 		var categories = [];
-		worker.newWork(controller.name, 'getCategories', page, function(err, res) {
+		worker.newWork(controller.name, 'getCategories', [page], function(err, res) {
 			if (err) {
 				cb(err, false);
 			} else {
@@ -17,3 +17,5 @@ var controller = {
 		});
 	}
 };
+
+module.exports = controller;

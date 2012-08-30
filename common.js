@@ -8,7 +8,7 @@ module.exports = {
 	openUrlWithJquery: function(url, proxies, cb) {
 		global.log.debug('Opening url ' + url);
 		request( { uri: url }, function(err, res, body) {
-			if (err && res.statusCode !== 200) {
+			if (err || res.statusCode !== 200) {
 				global.log.error('Error opening url ' + url);
 				cb(err, null);
 				return;
@@ -17,6 +17,10 @@ module.exports = {
 			global.log.debug('Retrieved url ' + url + ' ['+body.length+' bytes]');
 
 			var $ = cheerio.load(body);
+			if (!$) {
+				console.log(res);
+				console.log(body);
+			}
 			cb(null, body, $);
 		});
 	},
